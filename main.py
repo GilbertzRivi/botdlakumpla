@@ -1,6 +1,6 @@
 from discord.enums import ActivityType
 from discord import Activity
-from discord.utils import find
+from discord.utils import get
 from os import getenv, path
 from dotenv import load_dotenv
 from discord import client, Intents
@@ -32,7 +32,7 @@ async def crole(ctx, colour, *, name: str,):
             await ctx.send('Juź masz role')
             return
 
-    bot_role = find(ctx.guild.roles, name=client.user.name)
+    bot_role = get(ctx.guild.roles, name=client.user.name)
     rola = await ctx.guild.create_role(name=name, colour=int(colour, 16), position=bot_role.position-1)
     rolejson[ctx.author.id] = rola.id
     await ctx.author.add_roles(rola)
