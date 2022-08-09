@@ -1,5 +1,6 @@
 from discord.enums import ActivityType
 from discord import Activity
+from discord.utils import find
 from os import getenv, path
 from dotenv import load_dotenv
 from discord import client, Intents
@@ -16,7 +17,7 @@ load_dotenv('.env')
 @client.event
 async def on_ready():
     print(f'logged in as {client.user.name}')
-    await client.change_presence(activity=Activity(name='sraken pierdaken', type=ActivityType.watching))
+    await client.change_presence(activity=Activity(name='.help', type=ActivityType.watching))
     if not path.exists('role.json'):
         with open('role.json', 'w') as file:
             file.write('{}')
@@ -31,7 +32,8 @@ async def crole(ctx, colour, *, name: str,):
             await ctx.send('Juź masz role')
             return
 
-    rola = await ctx.guild.create_role(name=name, colour=int(colour, 16))
+    bot_role = find(ctx.guild.roles, name=client.user.name)
+    rola = await ctx.guild.create_role(name=name, colour=int(colour, 16), position=bot_role.position-1)
     rolejson[ctx.author.id] = rola.id
     await ctx.author.add_roles(rola)
     await ctx.send(f'Pomyślnie stworzyłem i nadałem Ci rolę {rola.name}')
