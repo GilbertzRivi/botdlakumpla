@@ -33,7 +33,8 @@ async def crole(ctx, colour, *, name: str,):
             return
 
     bot_role = get(ctx.guild.roles, name=client.user.name)
-    rola = await ctx.guild.create_role(name=name, colour=int(colour, 16), position=bot_role.position-1)
+    rola = await ctx.guild.create_role(name=name, colour=int(colour, 16))
+    await rola.edit(position=bot_role.position-1)
     rolejson[ctx.author.id] = rola.id
     await ctx.author.add_roles(rola)
     await ctx.send(f'Pomyślnie stworzyłem i nadałem Ci rolę {rola.name}')
