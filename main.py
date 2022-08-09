@@ -1,11 +1,17 @@
+from msilib.schema import RemoveIniFile
 from discord.enums import ActivityType
-from discord import Activity
+from discord import Activity, Member, client, Intents, File, PermissionOverwrite
 from discord.utils import get
 from os import getenv, path
 from dotenv import load_dotenv
-from discord import client, Intents
 from discord.ext import commands
-import json
+import json, requests
+from e621 import E621
+from random import choice
+from io import BytesIO
+from asyncio import TimeoutError
+from time import sleep
+from os import remove
 
 intents = Intents.all()
 
@@ -21,6 +27,41 @@ async def on_ready():
     if not path.exists('role.json'):
         with open('role.json', 'w') as file:
             file.write('{}')
+
+@client.command()
+async def troll(ctx, member: Member, time: int, *, tags):
+    if ctx.author.id not in [239376339960856577, 423943556927848449]:
+        return
+    
+    api = E621()
+    posts = api.posts.search(tags.split(', ') + ['rating:e'])
+    post = choice(posts)
+    filename = f"{post.id}.{post.file.ext}"
+    with open(filename, "wb") as file:
+        file.write(requests.get(post.file.url).content)
+
+    with open(filename, 'rb') as f:
+        filebytes = f.read()
+    dcfile = File(BytesIO(filebytes), filename=filename)
+
+    await ctx.send('jest git? potwierdź pisząc "t"', file=dcfile)
+
+    try:
+        await client.wait_for('message', timeout=5.0, check=lambda m: m.author.id == ctx.author.id and m.content.lower() == 't')
+    except TimeoutError:
+        await ctx.send('aborting.')
+    else:
+        with open(filename, 'rb') as f:
+            filebytes = f.read()
+        dcfile = File(BytesIO(filebytes), filename=filename)
+        await ctx.send('👍')
+        overwrites = {ctx.guild.default_role: PermissionOverwrite(read_messages=False), member: PermissionOverwrite(read_messages=True)}
+        chan = await ctx.guild.create_text_channel(name=member.display_name, overwrites=overwrites)
+        await chan.send(member.mention, file=dcfile)
+        sleep(time)
+        await chan.delete()
+    
+    remove(filename)
 
 @client.command()
 async def crole(ctx, colour, *, name: str,):
