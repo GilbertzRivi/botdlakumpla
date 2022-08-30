@@ -1,4 +1,3 @@
-from msilib.schema import RemoveIniFile
 from discord.enums import ActivityType
 from discord import Activity, Member, client, Intents, File, PermissionOverwrite
 from discord.utils import get
