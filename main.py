@@ -31,7 +31,7 @@ async def on_ready():
 async def troll(ctx, member: Member, time: int, *, tags):
     if ctx.author.id not in [239376339960856577, 423943556927848449]:
         return
-    
+    ctx.send("wait for api response")
     api = E621()
     posts = api.posts.search(tags.split(', ') + ['rating:e'])
     post = choice(posts)
